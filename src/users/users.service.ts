@@ -14,7 +14,7 @@ export class UsersService {
     return userWithoutPassword;
   }
 
-  private async getUser(id: string) {
+  async getUserById(id: string) {
     const user = await this.prisma.user.findUnique({
       where: {
         id: id,
@@ -26,13 +26,24 @@ export class UsersService {
     return user;
   }
 
+  async getUserByEmail(email: string): Promise<User> {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        email: email,
+      },
+    });
+
+    return user;
+  }
+
   async create(createUserDto: CreateUserDto) {
     const salt = bcrypt.genSaltSync(+process.env.CRYPT_SALT);
     const hash = bcrypt.hashSync(createUserDto.password, salt);
     createUserDto.password = hash;
 
     try {
-      return await this.prisma.user.create({ data: createUserDto });
+      const user = await this.prisma.user.create({ data: createUserDto });
+      return this.deletePasswordFromUser(user);
     } catch (e) {
       return e;
     }
@@ -46,7 +57,7 @@ export class UsersService {
   }
 
   async findOne(id: string) {
-    const user = await this.getUser(id);
+    const user = await this.getUserById(id);
     return this.deletePasswordFromUser(user);
   }
 
@@ -62,7 +73,7 @@ export class UsersService {
   }
 
   async remove(id: string) {
-    const user = this.prisma.user.delete({
+    const user = await this.prisma.user.delete({
       where: { id: id },
     });
 
