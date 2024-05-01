@@ -7,14 +7,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Module({
   controllers: [UsersController],
-  providers: [
-    UsersService,
-    PrismaService,
-    {
-      provide: APP_GUARD,
-      useClass: JwtAuthGuard,
-    },
-  ],
+  providers: [UsersService, PrismaService],
   exports: [UsersService],
 })
 export class UsersModule {}
