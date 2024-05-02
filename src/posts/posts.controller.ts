@@ -7,6 +7,8 @@ import {
   Param,
   Delete,
   Request,
+  ParseUUIDPipe,
+  ValidationPipe,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -18,7 +20,10 @@ export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
   @Post()
-  create(@Body() createPostDto: CreatePostDto, @Request() req) {
+  create(
+    @Body(new ValidationPipe({ whitelist: true })) createPostDto: CreatePostDto,
+    @Request() req,
+  ) {
     return this.postsService.create(createPostDto, req);
   }
 
@@ -29,18 +34,21 @@ export class PostsController {
   }
 
   @Public()
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.postsService.findOne(id);
+  @Get(':uuid')
+  findOne(@Param('uuid', new ParseUUIDPipe()) uuid: string) {
+    return this.postsService.findOne(uuid);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
-    return this.postsService.update(id, updatePostDto);
+  @Patch(':uuid')
+  update(
+    @Param('uuid', new ParseUUIDPipe()) uuid: string,
+    @Body(new ValidationPipe({ whitelist: true })) updatePostDto: UpdatePostDto,
+  ) {
+    return this.postsService.update(uuid, updatePostDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.postsService.remove(id);
+  @Delete(':uuid')
+  remove(@Param('uuid', new ParseUUIDPipe()) uuid: string) {
+    return this.postsService.remove(uuid);
   }
 }
