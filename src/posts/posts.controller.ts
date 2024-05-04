@@ -14,6 +14,8 @@ import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { Public } from 'src/auth/jwt-auth.guard';
+import { Role } from '@prisma/client';
+import { Roles } from 'src/auth/role-auth.guard';
 
 @Controller('posts')
 export class PostsController {
@@ -39,6 +41,7 @@ export class PostsController {
     return this.postsService.findOne(uuid);
   }
 
+  @Roles(Role.ADMIN, Role.USER)
   @Patch(':uuid')
   update(
     @Param('uuid', new ParseUUIDPipe()) uuid: string,
@@ -47,6 +50,7 @@ export class PostsController {
     return this.postsService.update(uuid, updatePostDto);
   }
 
+  @Roles(Role.ADMIN, Role.USER)
   @Delete(':uuid')
   remove(@Param('uuid', new ParseUUIDPipe()) uuid: string) {
     return this.postsService.remove(uuid);
