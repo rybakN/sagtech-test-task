@@ -41,12 +41,8 @@ export class UsersService {
     const hash = bcrypt.hashSync(createUserDto.password, salt);
     createUserDto.password = hash;
 
-    try {
-      const user = await this.prisma.user.create({ data: createUserDto });
-      return this.deletePasswordFromUser(user);
-    } catch (e) {
-      return e;
-    }
+    const user = await this.prisma.user.create({ data: createUserDto });
+    return this.deletePasswordFromUser(user);
   }
 
   async findAll() {
