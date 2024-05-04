@@ -6,7 +6,8 @@ import {
   createMongoAbility,
 } from '@casl/ability';
 import { Injectable } from '@nestjs/common';
-import { Post } from 'src/posts/entities/post.entity';
+import { Role } from '@prisma/client';
+import { UserPost } from 'src/posts/entities/userPost.entity';
 import { User } from 'src/users/entities/user.entity';
 
 export enum Action {
@@ -17,22 +18,24 @@ export enum Action {
   Delete = 'delete',
 }
 
-type Subjects = InferSubjects<typeof Post | typeof User> | 'all';
+type Subjects = InferSubjects<typeof UserPost | typeof User> | 'all';
 
 export type AppAbility = MongoAbility<[Action, Subjects]>;
 
 @Injectable()
 export class CaslAbilityFactory {
   createForUser(user: User) {
-    const { can, cannot, build } = new AbilityBuilder(createMongoAbility);
+    const { can, cannot, build } = new AbilityBuilder<AppAbility>(
+      createMongoAbility,
+    );
 
-    if (user.role === 'ADMIN') {
-      can(Action.Manage, 'all'); // read-write access to everything
+    can(Action.Read, UserPost);
+
+    if (user.role === Role.ADMIN) {
+      can(Action.Manage, 'all');
     } else {
-      can(Action.Read, 'all'); // read-only access to everything
+      can(Action.Read, User, { id: user.id });
     }
-
-    can(Action.Update, Post, { userId: user.id });
 
     return build({
       // Read https://casl.js.org/v6/en/guide/subject-type-detection#use-classes-as-subject-types for details

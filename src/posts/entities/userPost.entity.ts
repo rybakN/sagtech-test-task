@@ -1,4 +1,4 @@
-export class Post {
+export class UserPost {
   id: string;
   title: string;
   content: string;

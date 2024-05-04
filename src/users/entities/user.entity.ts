@@ -3,6 +3,6 @@ export class User {
   email: string;
   password: string;
   role: 'USER' | 'ADMIN';
-  createdAt: number;
-  updatedAt: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
