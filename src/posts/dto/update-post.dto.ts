@@ -1,8 +1,9 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreatePostDto } from './create-post.dto';
-import { IsUUID } from 'class-validator';
+import { IsOptional, IsUUID } from 'class-validator';
 
 export class UpdatePostDto extends PartialType(CreatePostDto) {
+  @IsOptional()
   @IsUUID()
   id: string;
 }

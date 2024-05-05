@@ -9,7 +9,7 @@ import * as bcrypt from 'bcrypt';
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  private deletePasswordFromUser(user: User): Omit<User, 'password'> {
+  private hideUserPasswoerd(user: User): Omit<User, 'password'> {
     const { password, ...userWithoutPassword } = user;
     return userWithoutPassword;
   }
@@ -42,19 +42,19 @@ export class UsersService {
     createUserDto.password = hash;
 
     const user = await this.prisma.user.create({ data: createUserDto });
-    return this.deletePasswordFromUser(user);
+    return this.hideUserPasswoerd(user);
   }
 
   async findAll() {
     const allUsers = await this.prisma.user.findMany();
     return allUsers.map((user) => {
-      return this.deletePasswordFromUser(user);
+      return this.hideUserPasswoerd(user);
     });
   }
 
   async findOne(id: string) {
     const user = await this.getUserById(id);
-    return this.deletePasswordFromUser(user);
+    return this.hideUserPasswoerd(user);
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
@@ -65,7 +65,7 @@ export class UsersService {
 
     if (!user) throw new NotFoundException('User not found.');
 
-    return this.deletePasswordFromUser(user);
+    return this.hideUserPasswoerd(user);
   }
 
   async remove(id: string) {
@@ -75,6 +75,6 @@ export class UsersService {
 
     if (!user) throw new NotFoundException('User not found.');
 
-    return HttpCode(204);
+    return null;
   }
 }

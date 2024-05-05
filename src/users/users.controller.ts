@@ -41,7 +41,7 @@ export class UsersController {
 
   @Roles(Role.ADMIN, Role.USER)
   @Delete(':uuid')
-  remove(@Param('uuid', new ParseUUIDPipe()) uuid: string) {
-    return this.usersService.remove(uuid);
+  async remove(@Param('uuid', new ParseUUIDPipe()) uuid: string) {
+    return await this.usersService.remove(uuid);
   }
 }

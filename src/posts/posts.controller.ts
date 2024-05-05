@@ -16,17 +16,27 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { Public } from 'src/auth/jwt-auth.guard';
 import { Role } from '@prisma/client';
 import { Roles } from 'src/auth/role-auth.guard';
+import { JwtService } from '@nestjs/jwt';
 
 @Controller('posts')
 export class PostsController {
-  constructor(private readonly postsService: PostsService) {}
+  constructor(
+    private readonly postsService: PostsService,
+    private jwtService: JwtService,
+  ) {}
 
   @Post()
   create(
     @Body(new ValidationPipe({ whitelist: true })) createPostDto: CreatePostDto,
     @Request() req,
   ) {
-    return this.postsService.create(createPostDto, req);
+    const authHeader = req.headers.authorization;
+    const token = authHeader.split(' ')[1];
+    const userId = this.jwtService.decode(token, {
+      complete: true,
+      json: true,
+    }).payload.sub;
+    return this.postsService.create(createPostDto, userId);
   }
 
   @Public()
@@ -52,7 +62,7 @@ export class PostsController {
 
   @Roles(Role.ADMIN, Role.USER)
   @Delete(':uuid')
-  remove(@Param('uuid', new ParseUUIDPipe()) uuid: string) {
-    return this.postsService.remove(uuid);
+  async remove(@Param('uuid', new ParseUUIDPipe()) uuid: string) {
+    return await this.postsService.remove(uuid);
   }
 }
